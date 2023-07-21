@@ -16,6 +16,8 @@ namespace MasterService
 
         #region Users
         List<Users> GetUsersByKeyword(GetUsersByKeyword req);
+        Users InsertUser(InsertUser req);
+        ResLogin LoginByUser(LoginByUser req);
         #endregion
     }
 }

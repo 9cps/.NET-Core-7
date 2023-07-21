@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,24 +28,42 @@ namespace MasterService.Services
             return result;
         }
 
-        public T MapDataReader<T>(SqlDataReader reader) where T : new()
+        #region Supprot Database
+
+        public T MapDataRow<T>(DataRow row) where T : new()
         {
             T obj = new T();
+            var properties = obj.GetType().GetProperties();
 
-            // Loop through the properties of T using reflection
-            for (int i = 0; i < reader.FieldCount; i++)
+            foreach (var property in properties)
             {
-                string fieldName = reader.GetName(i);
-                var value = reader.GetValue(i);
-
-                var prop = typeof(T).GetProperty(fieldName);
-                if (prop != null && value != DBNull.Value)
+                if (row.Table.Columns.Contains(property.Name) && row[property.Name] != DBNull.Value)
                 {
-                    prop.SetValue(obj, value);
+                    property.SetValue(obj, Convert.ChangeType(row[property.Name], property.PropertyType));
                 }
             }
 
             return obj;
         }
+
+        public SqlCommand InsertCommand<T>(SqlConnection connection, string tableName, T obj)
+        {
+            var properties = obj.GetType().GetProperties();
+            string columns = string.Join(", ", properties.Select(p => p.Name));
+            string values = string.Join(", ", properties.Select(p => $"@{p.Name}"));
+
+            string insertSql = $"INSERT INTO {tableName} ({columns}) VALUES ({values})";
+
+            SqlCommand command = new SqlCommand(insertSql, connection);
+
+            foreach (var property in properties)
+            {
+                command.Parameters.AddWithValue($"@{property.Name}", property.GetValue(obj));
+            }
+
+            return command;
+        }
+
+        #endregion
     }
 }
