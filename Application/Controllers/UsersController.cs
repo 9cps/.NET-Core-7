@@ -37,43 +37,5 @@ namespace Application.Controllers
             
             return result;
         }
-
-        [HttpPost]
-        [Route("CreateUser")]
-        public ResponseModel CreateUser(InsertUser req)
-        {
-            var result = new ResponseModel();
-            try
-            {
-                result.Data = _masterService.InsertUser(req);
-                result.Status = true;
-            }
-            catch (Exception ex)
-            {
-                result.Status = false;
-                result.Message = ex.Message;
-            }
-
-            return result;
-        }
-
-        [HttpPost]
-        [Route("LoginByUser")]
-        public ResponseModel LoginByUser(LoginByUser req)
-        {
-            var result = new ResponseModel();
-            try
-            {
-                result.Data = _masterService.LoginByUser(req);
-                result.Status = true;
-            }
-            catch (Exception ex)
-            {
-                result.Status = false;
-                result.Message = ex.Message;
-            }
-
-            return result;
-        }
     }
 }

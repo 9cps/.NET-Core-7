@@ -15,7 +15,7 @@ namespace MasterService
         public List<Users> GetUsersByKeyword(GetUsersByKeyword req)
         {
             List<Users> result = new List<Users>();
-            if (JwtTokenGenerator.IsTokenExpired(req.user_token))
+            if (!JwtTokenAuthen.IsTokenExpired(req.user_token))
             {
                 using (var conn = DbConnectionFactory.GetSqlConnection())
                 {
@@ -59,7 +59,7 @@ namespace MasterService
             {
                 try
                 {
-                    req.users.password = JwtTokenGenerator.HashPassword(req.users.password);
+                    req.users.password = JwtTokenAuthen.HashPassword(req.users.password);
 
                     // Create an SQL command
                     SqlCommand insertCommand = publicService.InsertCommand(conn, "Users", req.users);
@@ -103,13 +103,13 @@ namespace MasterService
                             obj = publicService.MapDataRow<Users>(row);
                         }
 
-                        if (JwtTokenGenerator.VerifyPassword(obj.password, req.password))
+                        if (JwtTokenAuthen.VerifyPassword(obj.password, req.password))
                         {
                             result.email = obj.email;
                             result.user_name = obj.user_name;
                             result.last_name = obj.last_name;
                             result.first_name = obj.first_name;
-                            result.user_token = JwtTokenGenerator.GenerateToken(obj.user_name);
+                            result.user_token = JwtTokenAuthen.GenerateToken(obj.user_name);
                         }
                         else
                         {

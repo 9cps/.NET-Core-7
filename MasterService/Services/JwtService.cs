@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MasterService.Services
 {
-    public static class JwtTokenGenerator
+    public static class JwtTokenAuthen
     {
         public static bool IsTokenExpired(string token)
         {
@@ -14,37 +14,39 @@ namespace MasterService.Services
             var publicService = new PublicService();
             var key = Encoding.ASCII.GetBytes(publicService.GetConfiguration("JWT"));
 
-            var validationParameters = new TokenValidationParameters
+            if (Convert.ToBoolean(publicService.GetConfiguration("JwtAuthenState")))
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero // This is set to zero to account for clock differences between the token issuer and the server
-            };
-
-            try
-            {
-                // Validate the token without throwing an exception for expiration
-                SecurityToken validatedToken;
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-                // Check if the token has expired
-                if (validatedToken.ValidTo < DateTime.UtcNow)
+                var validationParameters = new TokenValidationParameters
                 {
-                    // Token has expired
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero // This is set to zero to account for clock differences between the token issuer and the server
+                };
+
+                try
+                {
+                    // Validate the token without throwing an exception for expiration
+                    SecurityToken validatedToken;
+                    var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+
+                    // Check if the token has expired
+                    if (validatedToken.ValidTo < DateTime.UtcNow)
+                    {
+                        // Token has expired
+                        // return true;
+                        throw new Exception("Session has expired please login again.");
+                    }
+                }
+                catch (SecurityTokenException)
+                {
+                    // Token validation failed (invalid token format, etc.)
+                    // You may handle this case based on your requirements
                     // return true;
                     throw new Exception("Session has expired please login again.");
                 }
             }
-            catch (SecurityTokenException)
-            {
-                // Token validation failed (invalid token format, etc.)
-                // You may handle this case based on your requirements
-                // return true;
-                throw new Exception("Session has expired please login again.");
-            }
-
             // Token is valid and not expired
             return false;
         }

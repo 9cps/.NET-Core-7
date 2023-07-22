@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 using System.Text;
+using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Middleware
 {
@@ -21,11 +24,10 @@ namespace Application.Middleware
             {
                 //var url = httpContext.Request.GetEncodedUrl().Split("/")[httpContext.Request.GetEncodedUrl().Split("/").Length - 1];
                 var url = httpContext.Request.GetEncodedPathAndQuery().Split("/")[1];
-                if (url != "AssertionConsumerService" && url != "Error" && url != "WHS0300" && url != "WHS0700" && url != "MaintainScreenProfile" && httpContext.Request.GetEncodedPathAndQuery() != "/Authen/AuthenUserLogin" && httpContext.Request.GetEncodedPathAndQuery() != "/Home/api/UpdateEmailInfo" && httpContext.Request.GetEncodedPathAndQuery() != "/Home/api/InsertEmailInfo")
+                if (url != "Authen")
                 {
                     if (url.IndexOf(".") < 0)
                     {
-
                         httpContext.Request.EnableBuffering();
                         var buffer = new byte[Convert.ToInt32(httpContext.Request.ContentLength)];
                         await httpContext.Request.Body.ReadAsync(buffer, 0, buffer.Length);
