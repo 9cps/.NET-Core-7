@@ -10,6 +10,10 @@ using MasterService.Services;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
 public class Startup
 {
@@ -25,20 +29,41 @@ public class Startup
         // Add other service configurations
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Professional API", Version = "v1" });
+
+            // Configure Bearer token authentication
+            var securityScheme = new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Description = "Enter 'Bearer {token}'",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT"
+            };
+
+            c.AddSecurityDefinition("Bearer", securityScheme);
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] { }
+                }
+            });
+        });
         // Use reflection to automatically register all interfaces and their implementations
         services.AddTransient<IMasterService, MasterServiceController>();
         services.AddSingleton(Configuration);
-        services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(builder =>
-            {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
-        });
-
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Local authentication scheme
@@ -51,6 +76,36 @@ public class Startup
             options.ClientSecret = "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";
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.CallbackPath = "/Authen/GoogleCallback";
+        });
+
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins("http://localhost:3000")
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+        });
+
+        services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(x =>
+        {
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
+                ValidAudience = Configuration.GetValue<string>("JwtSettings:Audience"),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtSettings:Key")!)),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true
+            };
         });
 
         // Set the default culture
@@ -79,8 +134,10 @@ public class Startup
             SupportedUICultures = supportedCultures
         });
 
+        app.UseRouting();
+
         // Authentication and Authorization middleware should be outside of the if block
-        //app.UseAuthentication(); // Should be before other middlewares that might require authentication.
+        app.UseAuthentication(); // Should be before other middlewares that might require authentication.
         app.UseAuthorization();
 
         if (env.IsDevelopment())
@@ -88,8 +145,6 @@ public class Startup
             app.UseMiddleware<SecurityHeadersMiddleware>();
             app.UseMiddleware<Middleware>();
         }
-
-        app.UseRouting();
 
         app.UseEndpoints(endpoints =>
         {

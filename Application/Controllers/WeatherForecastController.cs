@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MasterService.Dto.Request;
 using Application.Model;
 using MasterService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Application.Controllers
 {
@@ -19,6 +20,7 @@ namespace Application.Controllers
             _masterService = masterService;
         }
 
+        [Authorize]
         [HttpPost]
         [Route("GetWeatherForecast")]
         public ResponseModel GetWeatherForecast(GetWeatherForecast req)

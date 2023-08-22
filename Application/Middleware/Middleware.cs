@@ -22,24 +22,31 @@ namespace Application.Middleware
             var req = httpContext.Request.Body;
             try
             {
-                //var url = httpContext.Request.GetEncodedUrl().Split("/")[httpContext.Request.GetEncodedUrl().Split("/").Length - 1];
                 var url = httpContext.Request.GetEncodedPathAndQuery().Split("/")[1];
                 if (url != "Authen")
                 {
-                    if (url.IndexOf(".") < 0)
+                    //if (url.IndexOf(".") < 0)
+                    //{
+                    //    httpContext.Request.EnableBuffering();
+                    //    var buffer = new byte[Convert.ToInt32(httpContext.Request.ContentLength)];
+                    //    await httpContext.Request.Body.ReadAsync(buffer, 0, buffer.Length);
+                    //    var body = Encoding.UTF8.GetString(buffer);
+                    //    httpContext.Request.Body.Position = 0;
+                    //    char[] lstSpecialChar = { '<', '>', '!', '#', '|' };
+                    //    int isMath = body.IndexOfAny(lstSpecialChar);
+                    //    if (isMath > 0)
+                    //    {
+                    //        throw new Exception("XSS injection detected from middleware.");
+                    //    }
+                    //}
+
+                    // Check if the Bearer token is present in the request headers
+                    var token = httpContext.Request.Headers["Authorization"]; //.FirstOrDefault()?.Split(" ").Last();
+                    if (string.IsNullOrWhiteSpace(token))
                     {
-                        httpContext.Request.EnableBuffering();
-                        var buffer = new byte[Convert.ToInt32(httpContext.Request.ContentLength)];
-                        await httpContext.Request.Body.ReadAsync(buffer, 0, buffer.Length);
-                        var body = Encoding.UTF8.GetString(buffer);
-                        httpContext.Request.Body.Position = 0;
-                        char[] lstSpecialChar = { '<', '>', '!', '#', '|' };
-                        int isMath = body.IndexOfAny(lstSpecialChar);
-                        if (isMath > 0)
-                        {
-                            throw new Exception("XSS injection detected from middleware.");
-                        }
+                        throw new Exception("Bearer token is missing from middleware.");
                     }
+
                 }
                 await _next(httpContext);
             }

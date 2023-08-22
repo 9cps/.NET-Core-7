@@ -12,7 +12,7 @@ namespace MasterService.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var publicService = new PublicService();
-            var key = Encoding.ASCII.GetBytes(publicService.GetConfiguration("JWT"));
+            var key = Encoding.UTF8.GetBytes(publicService.GetConfiguration("JwtSettings:Key"));
 
             if (Convert.ToBoolean(publicService.GetConfiguration("JwtAuthenState")))
             {
@@ -20,8 +20,8 @@ namespace MasterService.Services
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ClockSkew = TimeSpan.Zero // This is set to zero to account for clock differences between the token issuer and the server
                 };
 
@@ -53,17 +53,20 @@ namespace MasterService.Services
 
         public static string GenerateToken(string username, int expirationMinutes = 30)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
             var publicService = new PublicService();
-            var key = Encoding.ASCII.GetBytes(publicService.GetConfiguration("JWT"));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(publicService.GetConfiguration("JwtSettings:Key"));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                Issuer = publicService.GetConfiguration("JwtSettings:Issuer"),
+                Audience = publicService.GetConfiguration("JwtSettings:Audience"),
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    //new Claim(ClaimTypes.NameIdentifier, userId),
-                    new Claim(ClaimTypes.Name, username)
-                    // Add additional claims as needed
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Aud, publicService.GetConfiguration("JwtSettings:Audience")),
+                    new Claim(JwtRegisteredClaimNames.Iss, publicService.GetConfiguration("JwtSettings:Issuer"))
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
