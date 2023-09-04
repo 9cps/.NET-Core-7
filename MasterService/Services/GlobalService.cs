@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace MasterService.Services
 {
-    public class PublicService
+    public class GlobalService
     {
         private static IConfiguration configuration;
 
-        public PublicService()
+        public GlobalService()
         {
             configuration = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)

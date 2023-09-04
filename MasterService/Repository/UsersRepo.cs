@@ -11,7 +11,7 @@ namespace MasterService
 {
     public partial class MasterServiceController : IMasterService
     {
-        private readonly PublicService publicService = new PublicService();
+        private readonly GlobalService publicService = new GlobalService();
         public List<Users> GetUsersByKeyword(GetUsersByKeyword req)
         {
             List<Users> result = new List<Users>();

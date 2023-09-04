@@ -11,6 +11,10 @@ namespace MasterService
     public interface IMasterService
     {
         #region WeatherForecast
+        bool HelpCheckConnection();
+        #endregion
+
+        #region WeatherForecast
         ResponseWeatherForecast GetWeatherForecast(GetWeatherForecast req);
         #endregion
 

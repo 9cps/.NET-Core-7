@@ -39,7 +39,7 @@ namespace MasterService.Services
         private static string GetConnectionString()
         {
             string connectionString = string.Empty;
-            var publicService = new PublicService();
+            var publicService = new GlobalService();
             try
             {
                 string keyName = $"DatabaseConfig:{publicService.GetConfiguration("ApplicationPhase")}";

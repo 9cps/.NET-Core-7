@@ -11,7 +11,7 @@ namespace MasterService.Services
         public static bool IsTokenExpired(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var publicService = new PublicService();
+            var publicService = new GlobalService();
             var key = Encoding.UTF8.GetBytes(publicService.GetConfiguration("JwtSettings:Key"));
 
             if (Convert.ToBoolean(publicService.GetConfiguration("JwtAuthenState")))
@@ -53,7 +53,7 @@ namespace MasterService.Services
 
         public static string GenerateToken(string username, int expirationMinutes = 30)
         {
-            var publicService = new PublicService();
+            var publicService = new GlobalService();
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(publicService.GetConfiguration("JwtSettings:Key"));
 
