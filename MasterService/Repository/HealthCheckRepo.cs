@@ -13,7 +13,7 @@ namespace MasterService
 {   
     public partial class MasterServiceController : IMasterService
     {
-        public bool HelpCheckConnection()
+        public bool HealthCheckConnection()
         {
             bool result = false;
             using (var conn = DbConnectionFactory.GetSqlConnection())

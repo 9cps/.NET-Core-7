@@ -8,21 +8,21 @@ namespace Application.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class HelpCheckController : ControllerBase
+    public class HealthCheckController : ControllerBase
     {
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IMasterService _masterService; // Change the type to IMasterService
 
 
-        public HelpCheckController(ILogger<WeatherForecastController> logger, IMasterService masterService)
+        public HealthCheckController(ILogger<WeatherForecastController> logger, IMasterService masterService)
         {
             _logger = logger;
             _masterService = masterService;
         }
 
         [HttpGet]
-        [Route("HelpCheckApi")]
-        public ResponseModel HelpCheckApi()
+        [Route("HealthCheckApi")]
+        public ResponseModel HealthCheckApi()
         {
             var result = new ResponseModel();
             try
@@ -41,13 +41,13 @@ namespace Application.Controllers
         }
 
         [HttpGet]
-        [Route("HelpCheckDataBase")]
-        public ResponseModel HelpCheckDataBase()
+        [Route("HealthCheckDataBase")]
+        public ResponseModel HealthCheckDataBase()
         {
             var result = new ResponseModel();
             try
             {
-                result.Data = _masterService.HelpCheckConnection();
+                result.Data = _masterService.HealthCheckConnection();
                 result.Message = "The connection works normally.";
                 result.Status = true;
             }

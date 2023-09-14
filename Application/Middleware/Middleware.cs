@@ -23,7 +23,7 @@ namespace Application.Middleware
             try
             {
                 var url = httpContext.Request.GetEncodedPathAndQuery().Split("/")[1];
-                if (url != "Authen" && url != "HelpCheck")
+                if (url != "Authen" && url != "HealthCheck")
                 {
                     //if (url.IndexOf(".") < 0)
                     //{
