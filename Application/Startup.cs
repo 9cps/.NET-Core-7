@@ -26,6 +26,12 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        }));
         // Add other service configurations
         services.AddControllers();
         services.AddEndpointsApiExplorer();
@@ -123,7 +129,7 @@ public class Startup
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
-        app.UseCors();
+        app.UseCors("AllowOrigin");
 
         // Add culture configuration middleware
         var supportedCultures = new[] { new CultureInfo("en-US") }; // Replace with your desired culture(s)
