@@ -26,12 +26,13 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddCors(o => o.AddPolicy("AllowOrigin", builder =>
+        services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
         {
             builder.AllowAnyOrigin()
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         }));
+
         // Add other service configurations
         services.AddControllers();
         services.AddEndpointsApiExplorer();
@@ -84,25 +85,15 @@ public class Startup
             options.CallbackPath = "/Authen/GoogleCallback";
         });
 
-        services.AddCors(options =>
+        services.AddAuthentication(options =>
         {
-            options.AddDefaultPolicy(builder =>
-            {
-                builder.WithOrigins("http://localhost:3000")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
-        });
-
-        services.AddAuthentication(x =>
-        {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(x =>
+        .AddJwtBearer(options =>
         {
-            x.TokenValidationParameters = new TokenValidationParameters
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidIssuer = Configuration.GetValue<string>("JwtSettings:Issuer"),
                 ValidAudience = Configuration.GetValue<string>("JwtSettings:Audience"),

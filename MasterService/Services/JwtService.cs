@@ -51,7 +51,7 @@ namespace MasterService.Services
             return false;
         }
 
-        public static string GenerateToken(string username, int expirationMinutes = 30)
+        public static string GenerateToken(string username)
         {
             var publicService = new GlobalService();
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -68,7 +68,7 @@ namespace MasterService.Services
                     new Claim(JwtRegisteredClaimNames.Aud, publicService.GetConfiguration("JwtSettings:Audience")),
                     new Claim(JwtRegisteredClaimNames.Iss, publicService.GetConfiguration("JwtSettings:Issuer"))
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(publicService.GetConfiguration("JwtSettings:TimeLife"))),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
