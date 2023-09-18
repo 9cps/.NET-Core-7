@@ -79,10 +79,10 @@ public class Startup
         .AddCookie()
         .AddGoogle(options =>
         {
-            options.ClientId = "67599451553-jg86t02t5tmsm23feio370q9cttg6iv0.apps.googleusercontent.com";
-            options.ClientSecret = "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";
+            options.ClientId = Configuration.GetValue<string>("AuthGoogleSetting:ClientId");
+            options.ClientSecret = Configuration.GetValue<string>("AuthGoogleSetting:ClientSecret");
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.CallbackPath = "/Authen/GoogleCallback";
+            options.CallbackPath = Configuration.GetValue<string>("AuthGoogleSetting:CallbackPath");
         });
 
         services.AddAuthentication(options =>
